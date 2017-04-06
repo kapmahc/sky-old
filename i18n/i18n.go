@@ -99,7 +99,7 @@ func (p *I18n) Load(dir string) error {
 
 			items := cfg.Section(ini.DEFAULT_SECTION).KeysHash()
 			for k, v := range items {
-				if err := p.Store.Set(lang, k, v); err != nil {
+				if err := p.Store.Set(lang, k, v, false); err != nil {
 					return err
 				}
 			}

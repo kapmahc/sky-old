@@ -19,20 +19,20 @@ type Store struct {
 }
 
 //Set set locale
-func (p *Store) Set(lang string, code, message string) error {
+func (p *Store) Set(lang, code, message string, override bool) error {
 	var l Model
-	var err error
 	if p.db.Where("lang = ? AND code = ?", lang, code).First(&l).RecordNotFound() {
 		l.Lang = lang
 		l.Code = code
 		l.Message = message
-		err = p.db.Create(&l).Error
-	} else {
+		return p.db.Create(&l).Error
+	}
+	if override {
 		l.Message = message
-		err = p.db.Save(&l).Error
+		return p.db.Save(&l).Error
 	}
 
-	return err
+	return nil
 }
 
 //Del del locale

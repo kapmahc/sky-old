@@ -17,7 +17,7 @@ func New() *Server {
 // Server server
 type Server struct {
 	tasks map[string]Handler
-	Queue Queue
+	Queue Queue `inject:""`
 }
 
 // Do do
