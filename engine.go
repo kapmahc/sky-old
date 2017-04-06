@@ -1,6 +1,7 @@
 package sky
 
 import (
+	"github.com/facebookgo/inject"
 	"github.com/ikeikeikeike/go-sitemap-generator/stm"
 	"github.com/kapmahc/sky/job"
 	"github.com/urfave/cli"
@@ -9,6 +10,7 @@ import (
 
 // Engine engine
 type Engine interface {
+	Map(*inject.Graph) error
 	Mount(*Router)
 	Shell() []cli.Command
 	Workers() map[string]job.Handler
