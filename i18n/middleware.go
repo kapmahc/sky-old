@@ -52,6 +52,6 @@ func NewMiddleware(matcher language.Matcher) sky.Handler {
 		}
 
 		c.Set(LOCALE, ts)
-		return nil
+		return c.Next()
 	}
 }
