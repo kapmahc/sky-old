@@ -10,20 +10,20 @@ import (
 )
 
 // New new server
-func New(q Queue) *Server {
-	return &Server{tasks: make(map[string]Handler), queue: q}
+func New() *Server {
+	return &Server{tasks: make(map[string]Handler)}
 }
 
 // Server server
 type Server struct {
 	tasks map[string]Handler
-	queue Queue
+	Queue Queue
 }
 
 // Do do
 func (p *Server) Do(name string) error {
 	log.Infof("waiting for messages, to exit press CTRL+C")
-	return p.queue.Receive(name, func(msg *Message) error {
+	return p.Queue.Receive(name, func(msg *Message) error {
 		now := time.Now()
 		log.Infof("receive message %s@%s", msg.ID, msg.Type)
 		hnd, ok := p.tasks[msg.Type]
@@ -44,7 +44,7 @@ func (p *Server) Send(prv uint8, typ string, val interface{}) error {
 	if err != nil {
 		return err
 	}
-	return p.queue.Send(msg)
+	return p.Queue.Send(msg)
 }
 
 // Status status

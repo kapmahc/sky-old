@@ -15,7 +15,7 @@ func New(db *gorm.DB) settings.Store {
 
 // Store gorm store
 type Store struct {
-	db *gorm.DB
+	db *gorm.DB `inject:""`
 }
 
 // Set save

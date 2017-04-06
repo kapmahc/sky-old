@@ -14,21 +14,14 @@ import (
 	"golang.org/x/text/language"
 )
 
-// New new i18n
-func New(s Store) *I18n {
-	return &I18n{
-		store: s,
-	}
-}
-
 // I18n i18n
 type I18n struct {
-	store Store
+	Store Store `inject:""`
 }
 
 // F format message
 func (p *I18n) F(lang, code string, obj interface{}) (string, error) {
-	msg, err := p.store.Get(lang, code)
+	msg, err := p.Store.Get(lang, code)
 	if err != nil {
 		return "", err
 	}
@@ -43,7 +36,7 @@ func (p *I18n) F(lang, code string, obj interface{}) (string, error) {
 
 //E create an i18n error
 func (p *I18n) E(lang, code string, args ...interface{}) error {
-	msg, err := p.store.Get(lang, code)
+	msg, err := p.Store.Get(lang, code)
 	if err != nil {
 		return errors.New(code)
 	}
@@ -52,7 +45,7 @@ func (p *I18n) E(lang, code string, args ...interface{}) error {
 
 //T translate by lang tag
 func (p *I18n) T(lang, code string, args ...interface{}) string {
-	msg, err := p.store.Get(lang, code)
+	msg, err := p.Store.Get(lang, code)
 	if err != nil {
 		return code
 	}
@@ -63,7 +56,7 @@ func (p *I18n) T(lang, code string, args ...interface{}) string {
 func (p *I18n) All(lang string) (map[string]interface{}, error) {
 	rt := make(map[string]interface{})
 
-	items, err := p.store.All(lang)
+	items, err := p.Store.All(lang)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +99,7 @@ func (p *I18n) Load(dir string) error {
 
 			items := cfg.Section(ini.DEFAULT_SECTION).KeysHash()
 			for k, v := range items {
-				if err := p.store.Set(lang, k, v); err != nil {
+				if err := p.Store.Set(lang, k, v); err != nil {
 					return err
 				}
 			}

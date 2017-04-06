@@ -6,13 +6,13 @@ import (
 	"crypto/rand"
 )
 
-// Factory encode-decode factory
-type Factory struct {
+// Cipher cipher
+type Cipher struct {
 	cip cipher.Block
 }
 
-// To encrypt
-func (p *Factory) To(buf []byte) ([]byte, error) {
+// Encrypt encrypt
+func (p *Cipher) Encrypt(buf []byte) ([]byte, error) {
 	iv := make([]byte, aes.BlockSize)
 	if _, err := rand.Read(iv); err != nil {
 		return nil, err
@@ -24,8 +24,8 @@ func (p *Factory) To(buf []byte) ([]byte, error) {
 	return append(val, iv...), nil
 }
 
-// From decrypt
-func (p *Factory) From(buf []byte) ([]byte, error) {
+// Decrypt decrypt
+func (p *Cipher) Decrypt(buf []byte) ([]byte, error) {
 	bln := len(buf)
 	cln := bln - aes.BlockSize
 	ct := buf[0:cln]

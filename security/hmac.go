@@ -5,6 +5,11 @@ import (
 	"crypto/sha512"
 )
 
+// NewHmac new hmac
+func NewHmac(key []byte) *Hmac {
+	return &Hmac{key: key}
+}
+
 // Hmac hmac
 type Hmac struct {
 	key []byte
