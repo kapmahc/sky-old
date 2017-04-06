@@ -1,8 +1,14 @@
 package sky
 
 import (
+	"fmt"
 	"net/http"
+	"os"
+	"path"
+	"syscall"
 
+	log "github.com/Sirupsen/logrus"
+	"github.com/fvbock/endless"
 	"github.com/gorilla/mux"
 	"github.com/unrolled/render"
 )
@@ -24,6 +30,27 @@ type Router struct {
 	root     *mux.Router
 	render   *render.Render
 	handlers []Handler
+}
+
+// Start start
+func (p *Router) Start(port int) error {
+	addr := fmt.Sprintf(":%d", port)
+	if IsProduction() {
+		srv := endless.NewServer(addr, p.root)
+		srv.BeforeBegin = func(add string) {
+			fd, err := os.OpenFile(path.Join("tmp", "pid"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+			if err != nil {
+				log.Error(err)
+				return
+			}
+			defer fd.Close()
+			pid := syscall.Getpid()
+			log.Printf("pid is %d", pid)
+			fmt.Fprint(fd, pid)
+		}
+	}
+	http.Handle("/", p.root)
+	return nil
 }
 
 // Use use
