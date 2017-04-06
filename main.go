@@ -16,13 +16,12 @@ var (
 	BuildTime string
 )
 
-// Main main entry
-func Main() error {
+// New new app
+func New() *cli.App {
 
 	app := cli.NewApp()
 	app.Name = os.Args[0]
 	app.Version = fmt.Sprintf("%s(%s)", Version, BuildTime)
-	app.Usage = "FLY - A complete open source e-commerce solution by the Go language."
 	app.EnableBashCompletion = true
 	app.Commands = []cli.Command{}
 
@@ -32,7 +31,7 @@ func Main() error {
 	}
 	sort.Sort(cli.FlagsByName(app.Flags))
 	sort.Sort(cli.CommandsByName(app.Commands))
-	return app.Run(os.Args)
+	return app
 }
 
 func init() {
