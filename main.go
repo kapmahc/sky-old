@@ -5,7 +5,6 @@ import (
 	"os"
 	"sort"
 
-	"github.com/spf13/viper"
 	"github.com/urfave/cli"
 )
 
@@ -32,11 +31,4 @@ func New() *cli.App {
 	sort.Sort(cli.FlagsByName(app.Flags))
 	sort.Sort(cli.CommandsByName(app.Commands))
 	return app
-}
-
-func init() {
-	viper.SetEnvPrefix("sky")
-	viper.BindEnv("env")
-	viper.SetDefault("env", "development")
-
 }

@@ -3,8 +3,6 @@ package sky
 import (
 	"log/syslog"
 
-	"golang.org/x/text/language"
-
 	log "github.com/Sirupsen/logrus"
 	logrus_syslog "github.com/Sirupsen/logrus/hooks/syslog"
 	"github.com/facebookgo/inject"
@@ -23,22 +21,7 @@ func (p *injectLogger) Debugf(format string, v ...interface{}) {
 func IocAction(fn cli.ActionFunc) cli.ActionFunc {
 	return CfgAction(func(c *cli.Context) error {
 		inj := inject.Graph{Logger: &injectLogger{}}
-		// -------
-		var tags []language.Tag
-		for _, l := range viper.GetStringSlice("languages") {
-			if lng, err := language.Parse(l); err == nil {
-				tags = append(tags, lng)
-			} else {
-				return err
-			}
-		}
 
-		// ---------------
-		if err := inj.Provide(
-			&inject.Object{Value: language.NewMatcher(tags)},
-		); err != nil {
-			return err
-		}
 		// -----------------
 		if err := Walk(func(en Engine) error {
 			if err := en.Map(&inj); err != nil {
@@ -67,7 +50,7 @@ func CfgAction(f cli.ActionFunc) cli.ActionFunc {
 		// -----------
 		if IsProduction() {
 			log.SetLevel(log.InfoLevel)
-			if wrt, err := syslog.New(syslog.LOG_INFO, viper.GetString("app.name")); err == nil {
+			if wrt, err := syslog.New(syslog.LOG_INFO, Name()); err == nil {
 				log.AddHook(&logrus_syslog.SyslogHook{Writer: wrt})
 			} else {
 				log.Error(err)
