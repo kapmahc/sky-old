@@ -43,7 +43,9 @@ func IocAction(fn cli.ActionFunc) cli.ActionFunc {
 // CfgAction cfg action
 func CfgAction(f cli.ActionFunc) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		log.Infof("read config from config.toml")
+		viper.SetConfigName("config")
+		viper.SetConfigType("toml")
+		viper.AddConfigPath(".")
 		if err := viper.ReadInConfig(); err != nil {
 			return err
 		}
