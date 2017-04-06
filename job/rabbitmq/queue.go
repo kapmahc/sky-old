@@ -3,7 +3,6 @@ package rabbitmq
 import (
 	"fmt"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/kapmahc/sky/job"
 	"github.com/streadway/amqp"
 )
@@ -60,8 +59,8 @@ func (p *Queue) Receive(name string, hnd func(*job.Message) error) error {
 }
 
 // Send send job
-func (p *Queue) Send(msg *job.Message) {
-	if err := p.open(func(ch *amqp.Channel) error {
+func (p *Queue) Send(msg *job.Message) error {
+	return p.open(func(ch *amqp.Channel) error {
 		qu, err := ch.QueueDeclare(p.name, true, false, false, false, nil)
 		if err != nil {
 			return err
@@ -76,9 +75,7 @@ func (p *Queue) Send(msg *job.Message) {
 			Timestamp:    msg.Created,
 			Type:         msg.Type,
 		})
-	}); err != nil {
-		log.Error(err)
-	}
+	})
 }
 
 func (p *Queue) open(f func(*amqp.Channel) error) error {
