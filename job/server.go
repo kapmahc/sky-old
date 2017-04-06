@@ -1,0 +1,56 @@
+package job
+
+import (
+	"fmt"
+	"reflect"
+	"runtime"
+	"time"
+
+	log "github.com/Sirupsen/logrus"
+)
+
+// New new server
+func New() *Server {
+	return &Server{tasks: make(map[string]Handler)}
+}
+
+// Server server
+type Server struct {
+	tasks map[string]Handler
+	queue Queue
+}
+
+// Run run
+func (p *Server) Run(name string) error {
+	log.Infof("waiting for messages, to exit press CTRL+C")
+	return p.queue.Receive(name, func(msg *Message) error {
+		now := time.Now()
+		log.Infof("receive message %s@%s", msg.ID, msg.Type)
+		hnd, ok := p.tasks[msg.Type]
+		if !ok {
+			return fmt.Errorf("unknown message type %s", msg.Type)
+		}
+		err := hnd(msg.Body)
+		if err == nil {
+			log.Info("done %s", time.Now().Sub(now))
+		}
+		return err
+	})
+}
+
+// Status status
+func (p *Server) Status() map[string]string {
+	val := make(map[string]string)
+	for k, v := range p.tasks {
+		val[k] = runtime.FuncForPC(reflect.ValueOf(v).Pointer()).Name()
+	}
+	return val
+}
+
+// Register register job
+func (p *Server) Register(t string, f Handler) {
+	if _, ok := p.tasks[t]; ok {
+		log.Warningf("task %s already exists!", t)
+	}
+	p.tasks[t] = f
+}
