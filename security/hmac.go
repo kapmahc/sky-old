@@ -5,19 +5,14 @@ import (
 	"crypto/sha512"
 )
 
-// NewHmac new hmac
-func NewHmac(key []byte) *Hmac {
-	return &Hmac{key: key}
-}
-
 // Hmac hmac
 type Hmac struct {
-	key []byte
+	Key []byte `inject:"hmac.key"`
 }
 
 // Sum sum hmac
 func (p *Hmac) Sum(plain []byte) []byte {
-	mac := hmac.New(sha512.New, p.key)
+	mac := hmac.New(sha512.New, p.Key)
 	return mac.Sum(plain)
 }
 

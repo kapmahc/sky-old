@@ -6,16 +6,9 @@ import (
 	"time"
 )
 
-// New new cache
-func New(n string, s Store) *Cache {
-	return &Cache{
-		store: s,
-	}
-}
-
 // Cache cache
 type Cache struct {
-	store Store
+	Store Store `inject:""`
 }
 
 //Set cache item
@@ -25,12 +18,12 @@ func (p *Cache) Set(key string, val interface{}, ttl time.Duration) error {
 	if err := enc.Encode(val); err != nil {
 		return err
 	}
-	return p.store.Set(key, buf.Bytes(), ttl)
+	return p.Store.Set(key, buf.Bytes(), ttl)
 }
 
 //Get get from cache
 func (p *Cache) Get(key string, val interface{}) error {
-	bys, err := p.store.Get(key)
+	bys, err := p.Store.Get(key)
 	if err != nil {
 		return err
 	}

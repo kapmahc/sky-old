@@ -6,11 +6,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Name app name
-func Name() string {
-	return viper.GetString("app.name")
-}
-
 // IsProduction production mode ?
 func IsProduction() bool {
 	return viper.GetString("env") == "production"

@@ -52,7 +52,7 @@ func CfgAction(f cli.ActionFunc) cli.ActionFunc {
 		// -----------
 		if IsProduction() {
 			log.SetLevel(log.InfoLevel)
-			if wrt, err := syslog.New(syslog.LOG_INFO, Name()); err == nil {
+			if wrt, err := syslog.New(syslog.LOG_INFO, viper.GetString("app.name")); err == nil {
 				log.AddHook(&logrus_syslog.SyslogHook{Writer: wrt})
 			} else {
 				log.Error(err)

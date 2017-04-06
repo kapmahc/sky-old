@@ -8,7 +8,7 @@ import (
 
 // Cipher cipher
 type Cipher struct {
-	cip cipher.Block
+	Block cipher.Block `inject:""`
 }
 
 // Encrypt encrypt
@@ -17,7 +17,7 @@ func (p *Cipher) Encrypt(buf []byte) ([]byte, error) {
 	if _, err := rand.Read(iv); err != nil {
 		return nil, err
 	}
-	cfb := cipher.NewCFBEncrypter(p.cip, iv)
+	cfb := cipher.NewCFBEncrypter(p.Block, iv)
 	val := make([]byte, len(buf))
 	cfb.XORKeyStream(val, buf)
 
@@ -31,7 +31,7 @@ func (p *Cipher) Decrypt(buf []byte) ([]byte, error) {
 	ct := buf[0:cln]
 	iv := buf[cln:bln]
 
-	cfb := cipher.NewCFBDecrypter(p.cip, iv)
+	cfb := cipher.NewCFBDecrypter(p.Block, iv)
 	val := make([]byte, cln)
 	cfb.XORKeyStream(val, ct)
 	return val, nil
