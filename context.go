@@ -8,8 +8,10 @@ import (
 	"runtime"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/go-playground/form"
 	"github.com/gorilla/csrf"
 	"github.com/unrolled/render"
+	validator "gopkg.in/go-playground/validator.v9"
 )
 
 const (
@@ -29,6 +31,8 @@ type Context struct {
 	Request  *http.Request
 	Writer   http.ResponseWriter
 	render   *render.Render
+	decoder  *form.Decoder
+	validate *validator.Validate
 	handlers []Handler
 	index    uint8
 }
@@ -47,6 +51,17 @@ func (p *Context) Next() error {
 		}
 	}
 	return nil
+}
+
+// Bind bind to form
+func (p *Context) Bind(fm interface{}) error {
+	if err := p.Request.ParseForm(); err != nil {
+		return err
+	}
+	if err := p.decoder.Decode(fm, p.Request.Form); err != nil {
+		return err
+	}
+	return p.validate.Struct(fm)
 }
 
 // Get get

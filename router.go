@@ -11,9 +11,11 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/fvbock/endless"
+	"github.com/go-playground/form"
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	"github.com/unrolled/render"
+	validator "gopkg.in/go-playground/validator.v9"
 )
 
 // Handler handler
@@ -34,6 +36,8 @@ func NewRouter(rt *mux.Router, theme string, funcs template.FuncMap) *Router {
 			},
 		),
 		handlers: make([]Handler, 0),
+		decoder:  form.NewDecoder(),
+		validate: validator.New(),
 	}
 }
 
@@ -42,6 +46,8 @@ type Router struct {
 	root     *mux.Router
 	render   *render.Render
 	handlers []Handler
+	decoder  *form.Decoder
+	validate *validator.Validate
 }
 
 // Start start
@@ -51,6 +57,7 @@ func (p *Router) Start(port int, key []byte) error {
 		key,
 		csrf.RequestHeader("Authenticity-Token"),
 		csrf.FieldName("authenticity_token"),
+		csrf.Secure(IsProduction()),
 	)(p.root)
 	if IsProduction() {
 		srv := endless.NewServer(addr, hnd)
@@ -73,11 +80,6 @@ func (p *Router) Start(port int, key []byte) error {
 // Use use
 func (p *Router) Use(handlers ...Handler) {
 	p.handlers = append(p.handlers, handlers...)
-}
-
-// LoadHTML load html
-func (p *Router) LoadHTML(string) {
-	// TODO
 }
 
 // Walk walk routes
@@ -142,6 +144,8 @@ func (p *Router) add(method, name, path string, handlers ...Handler) {
 			Writer:   wrt,
 			render:   p.render,
 			handlers: items,
+			decoder:  p.decoder,
+			validate: p.validate,
 		}
 
 		if err := ctx.Next(); err != nil {

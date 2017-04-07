@@ -8,15 +8,18 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/go-ini/ini"
+	"github.com/kapmahc/sky/cache"
 	"golang.org/x/text/language"
 )
 
 // I18n i18n
 type I18n struct {
-	Store Store `inject:""`
+	Store Store        `inject:""`
+	Cache *cache.Cache `inject:""`
 }
 
 // F format message
@@ -36,8 +39,8 @@ func (p *I18n) F(lang, code string, obj interface{}) (string, error) {
 
 //E create an i18n error
 func (p *I18n) E(lang, code string, args ...interface{}) error {
-	msg, err := p.Store.Get(lang, code)
-	if err != nil {
+	msg := p.get(lang, code)
+	if msg == "" {
 		return errors.New(code)
 	}
 	return fmt.Errorf(msg, args...)
@@ -45,8 +48,8 @@ func (p *I18n) E(lang, code string, args ...interface{}) error {
 
 //T translate by lang tag
 func (p *I18n) T(lang, code string, args ...interface{}) string {
-	msg, err := p.Store.Get(lang, code)
-	if err != nil {
+	msg := p.get(lang, code)
+	if msg == "" {
 		return code
 	}
 	return fmt.Sprintf(msg, args...)
@@ -107,4 +110,19 @@ func (p *I18n) Load(dir string) error {
 		}
 		return nil
 	})
+}
+
+func (p *I18n) get(lang, code string) string {
+	key := lang + "://locales/" + code
+	var msg string
+	err := p.Cache.Get(key, &msg)
+	if err == nil {
+		return msg
+	}
+	msg, err = p.Store.Get(lang, code)
+	if err == nil {
+		p.Cache.Set(key, msg, time.Hour*24*30)
+		return msg
+	}
+	return ""
 }
