@@ -104,8 +104,10 @@ func (p *Router) Group(path string, fn func(*Router), handlers ...Handler) {
 
 	fn(&Router{
 		root:     rt,
-		render:   p.render,
 		handlers: items,
+		render:   p.render,
+		decoder:  p.decoder,
+		validate: p.validate,
 	})
 }
 
@@ -142,8 +144,9 @@ func (p *Router) add(method, name, path string, handlers ...Handler) {
 		ctx := Context{
 			Request:  req,
 			Writer:   wrt,
-			render:   p.render,
+			params:   mux.Vars(req),
 			handlers: items,
+			render:   p.render,
 			decoder:  p.decoder,
 			validate: p.validate,
 		}

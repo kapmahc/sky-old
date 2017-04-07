@@ -47,6 +47,15 @@ func NewTextField(id, label, value string) Field {
 	}
 }
 
+// NewHiddenField new hidden field
+func NewHiddenField(id string, value interface{}) Field {
+	return Field{
+		"id":    id,
+		"type":  "hidden",
+		"value": value,
+	}
+}
+
 // NewEmailField new email field
 func NewEmailField(id, label, value string) Field {
 	return Field{

@@ -32,7 +32,7 @@ func (p *Server) Do(name string) error {
 		}
 		err := hnd(msg.Body)
 		if err == nil {
-			log.Info("done %s", time.Now().Sub(now))
+			log.Infof("done %s", time.Now().Sub(now))
 		}
 		return err
 	})

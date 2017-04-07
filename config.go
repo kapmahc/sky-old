@@ -6,6 +6,18 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Home home url
+func Home() string {
+	if IsProduction() {
+		name := viper.GetString("server.name")
+		if viper.GetBool("server.ssl") {
+			return "https://" + name
+		}
+		return "http://" + name
+	}
+	return fmt.Sprintf("http://localhost:%d", viper.GetInt("server.port"))
+}
+
 // IsProduction production mode ?
 func IsProduction() bool {
 	return viper.GetString("env") == "production"
