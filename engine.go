@@ -16,7 +16,7 @@ type Engine interface {
 	Workers() map[string]job.Handler
 	Atom(lang string) ([]*atom.Entry, error)
 	Sitemap() ([]stm.URL, error)
-	Navbar(*Context) []*Dropdown
+	Application(*Context) []*Dropdown
 	Dashboard(*Context) []*Dropdown
 }
 

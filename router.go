@@ -2,6 +2,7 @@ package sky
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 	"os"
 	"path"
@@ -10,6 +11,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/fvbock/endless"
+	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	"github.com/unrolled/render"
 )
@@ -18,20 +20,18 @@ import (
 type Handler func(*Context) error
 
 // NewRouter new router
-func NewRouter(rt *mux.Router, theme string, options ...render.Options) *Router {
-	options = append(
-		options,
-		render.Options{
-			Directory:  path.Join("themes", theme, "views"),
-			Layout:     LayoutApplication,
-			Extensions: []string{".html"},
-		},
-	)
+func NewRouter(rt *mux.Router, theme string, funcs template.FuncMap) *Router {
+
 	rt.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir(path.Join("themes", theme, "assets")))))
 	return &Router{
 		root: rt,
 		render: render.New(
-			options...,
+			render.Options{
+				Directory:  path.Join("themes", theme, "views"),
+				Layout:     "application",
+				Extensions: []string{".html"},
+				Funcs:      []template.FuncMap{funcs},
+			},
 		),
 		handlers: make([]Handler, 0),
 	}
@@ -45,10 +45,15 @@ type Router struct {
 }
 
 // Start start
-func (p *Router) Start(port int) error {
+func (p *Router) Start(port int, key []byte) error {
 	addr := fmt.Sprintf(":%d", port)
+	hnd := csrf.Protect(
+		key,
+		csrf.RequestHeader("Authenticity-Token"),
+		csrf.FieldName("authenticity_token"),
+	)(p.root)
 	if IsProduction() {
-		srv := endless.NewServer(addr, p.root)
+		srv := endless.NewServer(addr, hnd)
 		srv.BeforeBegin = func(add string) {
 			fd, err := os.OpenFile(path.Join("tmp", "pid"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 			if err != nil {
@@ -62,7 +67,7 @@ func (p *Router) Start(port int) error {
 		}
 		return srv.ListenAndServe()
 	}
-	return http.ListenAndServe(addr, p.root)
+	return http.ListenAndServe(addr, hnd)
 }
 
 // Use use

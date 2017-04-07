@@ -8,11 +8,14 @@ import (
 	"runtime"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/gorilla/csrf"
 	"github.com/unrolled/render"
 )
 
 const (
 	abortIndex = math.MaxUint8
+	// DATA data key
+	DATA = "data"
 )
 
 // K key type
@@ -71,4 +74,10 @@ func (p *Context) Abort(status int, err error) {
 // HTML render html
 func (p *Context) HTML(status int, name string, binding interface{}, htmlOpt ...render.HTMLOptions) {
 	p.render.HTML(p.Writer, status, name, binding, htmlOpt...)
+}
+
+// JSON render json
+func (p *Context) JSON(status int, value interface{}) {
+	p.Writer.Header().Set("X-CSRF-Token", csrf.Token(p.Request))
+	p.render.JSON(p.Writer, status, value)
 }

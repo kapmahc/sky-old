@@ -1,10 +1,9 @@
-package i18n
+package sky
 
 import (
 	"net/http"
 	"time"
 
-	"github.com/kapmahc/sky"
 	"golang.org/x/text/language"
 )
 
@@ -13,9 +12,9 @@ const (
 	LOCALE = "locale"
 )
 
-// NewMiddleware new locale-middleware
-func NewMiddleware(matcher language.Matcher) sky.Handler {
-	return func(c *sky.Context) error {
+// LocaleMiddleware new locale-middleware
+func LocaleMiddleware(matcher language.Matcher) Handler {
+	return func(c *Context) error {
 		write := false
 		// 1. Check URL arguments.
 		lang := c.Request.URL.Query().Get(LOCALE)
