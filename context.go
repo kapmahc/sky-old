@@ -71,7 +71,7 @@ func (p *Context) Bind(fm interface{}) error {
 	if err := p.Request.ParseForm(); err != nil {
 		return err
 	}
-	log.Debugf("%+v", p.decoder == nil)
+
 	if err := p.decoder.Decode(fm, p.Request.Form); err != nil {
 		return err
 	}

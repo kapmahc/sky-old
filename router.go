@@ -58,6 +58,8 @@ func (p *Router) Start(port int, key []byte) error {
 		csrf.RequestHeader("Authenticity-Token"),
 		csrf.FieldName("authenticity_token"),
 		csrf.Secure(IsProduction()),
+		csrf.CookieName("_csrf_"),
+		csrf.Path("/"),
 	)(p.root)
 	if IsProduction() {
 		srv := endless.NewServer(addr, hnd)
