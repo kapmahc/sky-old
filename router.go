@@ -55,7 +55,7 @@ func (p *Router) Start(port int, key []byte) error {
 	addr := fmt.Sprintf(":%d", port)
 	hnd := csrf.Protect(
 		key,
-		csrf.RequestHeader("Authenticity-Token"),
+		csrf.RequestHeader("X-CSRF-Token"),
 		csrf.FieldName("authenticity_token"),
 		csrf.Secure(IsProduction()),
 		csrf.CookieName("_csrf_"),

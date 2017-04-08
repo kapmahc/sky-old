@@ -9,6 +9,9 @@ import (
 
 // NewForm new form
 func NewForm(req *http.Request, lang, action, next, title string, fields ...interface{}) Form {
+	if next == "" {
+		next = action
+	}
 	return Form{
 		"id":             uuid.New().String(),
 		"lang":           lang,
@@ -31,6 +34,11 @@ func (p Form) Method(m string) {
 
 // Field field
 type Field map[string]interface{}
+
+// Readonly set readonly
+func (p Field) Readonly() {
+	p["readonly"] = true
+}
 
 // Helper set helper message
 func (p Field) Helper(h string) {
