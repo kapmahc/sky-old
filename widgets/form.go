@@ -45,6 +45,17 @@ func (p Field) Helper(h string) {
 	p["helper"] = h
 }
 
+// NewTextarea new textarea field
+func NewTextarea(id, label, value string, row int) Field {
+	return Field{
+		"id":    id,
+		"type":  "textarea",
+		"label": label,
+		"value": value,
+		"row":   3,
+	}
+}
+
 // NewTextField new text field
 func NewTextField(id, label, value string) Field {
 	return Field{
